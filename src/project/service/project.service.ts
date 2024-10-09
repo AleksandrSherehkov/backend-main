@@ -1,6 +1,7 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../lib/prisma';
 import { Prisma, Project, ProjectStatus } from '@prisma/client';
+import { Cron } from '@nestjs/schedule';
 
 @Injectable()
 export class ProjectService {
@@ -47,5 +48,18 @@ export class ProjectService {
       }
       throw error;
     }
+  }
+
+  @Cron('*/1 * * * *')
+  async expireProjects(): Promise<void> {
+    await this.prismaService.project.updateMany({
+      where: {
+        expiredAt: { lt: new Date() },
+        status: { not: ProjectStatus.expired },
+      },
+      data: {
+        status: ProjectStatus.expired,
+      },
+    });
   }
 }
