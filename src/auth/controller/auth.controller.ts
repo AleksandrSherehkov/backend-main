@@ -15,7 +15,7 @@ import { AuthGuard } from '../guard/auth.guard';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private authService: AuthService) {}
+  constructor(private readonly authService: AuthService) {}
 
   @HttpCode(HttpStatus.OK)
   @Post('sign-in')
@@ -23,10 +23,10 @@ export class AuthController {
     return this.authService.signIn(dto.username, dto.password);
   }
 
-  @HttpCode(HttpStatus.OK)
   @Post('sign-up')
+  @HttpCode(HttpStatus.CREATED)
   async signUp(@Body() dto: SignUpDto) {
-    await this.authService.signUp(dto.username, dto.password);
+    return this.authService.signUp(dto.username, dto.password);
   }
 
   @UseGuards(AuthGuard)
